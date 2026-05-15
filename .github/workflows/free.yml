@@ -15,48 +15,32 @@ name: 02- 📦 دانلود رایگان ( حداکثر ۱۰ مگابایت )
 
 jobs:
   save-file:
-    name: "📥 دانلود فایل (رایگان)"
+    name: "📥 دانلود"
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
       contents: write
     steps:
-      - name: Check URL provided
+      - name: 🔍 بررسی لینک
         run: |
           if [ -z "${{ github.event.inputs.urls }}" ]; then
-            echo ""
-            echo "❌ لینک دانلود وارد نشده است!"
-            echo ""
-            echo "📌 راهنما:"
-            echo "   1️⃣ workflow را دوباره اجرا کنید"
-            echo "   2️⃣ در فیلد 'لینک های دانلود' آدرس فایل را وارد کنید"
-            echo "   3️⃣ برای چند فایل، لینک‌ها را با فاصله جدا کنید"
-            echo ""
+            echo "❌ لینک وارد نشده!"
             exit 1
           fi
-          echo "✅ لینک دانلود دریافت شد"
+          echo "✅ لینک دریافت شد"
 
-      - name: Checkout
+      - name: 📂 بررسی اولیه
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      - name: Configure Git
+      - name: ⚙️ تنظیم اولیه
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          echo "Git configured"
 
-      - name: AVASAM Free Downloader - https://avasam.ir
-        run: |
-          echo "🏷️  AVASAM Free Downloader"
-          echo "🌐 https://avasam.ir"
-          echo ""
-          echo "⚠️  نسخه رایگان - حداکثر حجم فایل: 10 مگابایت"
-          echo ""
-
-      - name: Download files
+      - name: 📥 دانلود فایل
         run: |
           URLS="${{ github.event.inputs.urls }}"
           MAX_SIZE_MB=10
@@ -66,8 +50,8 @@ jobs:
           REPO_NAME="${{ github.event.repository.name }}"
           BRANCH="${GITHUB_REF_NAME}"
 
-          echo "AVASAM Free (https://avasam.ir) - Free Downloader"
-          echo "Maximum file size: ${MAX_SIZE_MB}MB"
+          echo "🌐 AVASAM Free (https://avasam.ir)"
+          echo "📏 حداکثر حجم: ${MAX_SIZE_MB}MB"
           echo ""
 
           mkdir -p downloads
@@ -83,41 +67,22 @@ jobs:
             local BASENAME_NO_EXT="${FILENAME%.*}"
             mkdir -p "downloads/${BASENAME_NO_EXT}"
             {
-              echo "# ${FILENAME} - Download Failed"
+              echo "# ${FILENAME} - ❌ خطا"
               echo ""
-              echo "---"
+              echo "| | |"
+              echo "|--|--|"
+              echo "| **فایل** | \`${FILENAME}\` |"
+              echo "| **لینک** | ${URL} |"
+              echo "| **تاریخ** | $(date '+%Y-%m-%d %H:%M:%S UTC') |"
               echo ""
-              echo "## Download Information"
-              echo ""
-              echo "| Property | Value |"
-              echo "|----------|-------|"
-              echo "| **File** | \`${FILENAME}\` |"
-              echo "| **URL** | ${URL} |"
-              echo "| **Date** | $(date '+%Y-%m-%d %H:%M:%S UTC') |"
-              echo "| **Status** | **FAILED** |"
-              echo ""
-              echo "---"
-              echo ""
-              echo "## Error Details"
-              echo ""
+              echo "## خطا"
               echo "\`\`\`"
               echo "$ERROR_MSG"
               echo "\`\`\`"
               echo ""
               echo "---"
-              echo ""
-              echo "## Possible Solutions"
-              echo ""
-              echo "- Check if the URL is correct and accessible"
-              echo "- The file may have been removed or moved"
-              echo "- **Free version limit: Maximum file size is ${MAX_SIZE_MB}MB**"
-              echo "- For larger files, use the full version"
-              echo ""
-              echo "---"
-              echo ""
-              echo "*This tool created by [avasam.ir](https://avasam.ir) - Free Version*"
+              echo "*[avasam.ir](https://avasam.ir)*"
             } > "downloads/${BASENAME_NO_EXT}/README.md"
-            echo "Error file created: downloads/${BASENAME_NO_EXT}/README.md"
           }
 
           create_size_error_file() {
@@ -127,32 +92,19 @@ jobs:
             local BASENAME_NO_EXT="${FILENAME%.*}"
             mkdir -p "downloads/${BASENAME_NO_EXT}"
             {
-              echo "# ${FILENAME} - File Too Large"
+              echo "# ${FILENAME} - ❌ حجم زیاد"
+              echo ""
+              echo "| | |"
+              echo "|--|--|"
+              echo "| **فایل** | \`${FILENAME}\` |"
+              echo "| **حجم** | ${FILE_SIZE_MB} MB |"
+              echo "| **حداکثر** | ${MAX_SIZE_MB} MB |"
+              echo ""
+              echo "⚠️ نسخه رایگان فقط فایل زیر ${MAX_SIZE_MB}MB"
               echo ""
               echo "---"
-              echo ""
-              echo "## ❌ حجم فایل بیش از حد مجاز است"
-              echo ""
-              echo "| Property | Value |"
-              echo "|----------|-------|"
-              echo "| **File** | \`${FILENAME}\` |"
-              echo "| **File Size** | ${FILE_SIZE_MB} MB |"
-              echo "| **Max Allowed** | ${MAX_SIZE_MB} MB |"
-              echo "| **URL** | ${URL} |"
-              echo ""
-              echo "---"
-              echo ""
-              echo "## ⚠️ نسخه رایگان"
-              echo ""
-              echo "این نسخه رایگان است و فقط فایل های زیر ${MAX_SIZE_MB} مگابایت را دانلود میکند."
-              echo ""
-              echo "برای دانلود فایل های بزرگتر به **نسخه اصلی** مراجعه کنید."
-              echo ""
-              echo "---"
-              echo ""
-              echo "*This tool created by [avasam.ir](https://avasam.ir) - Free Version*"
+              echo "*[avasam.ir](https://avasam.ir)*"
             } > "downloads/${BASENAME_NO_EXT}/README.md"
-            echo "Size error file created: downloads/${BASENAME_NO_EXT}/README.md"
           }
 
           download_file() {
@@ -163,19 +115,18 @@ jobs:
             local SUCCESS=false
             local ERROR_LOG=""
 
-            # First check file size using HEAD request
-            echo "Checking file size for $FILENAME..."
+            echo "📏 بررسی حجم..."
             FILE_SIZE=$(curl -sI -L "$URL" | grep -i content-length | tail -1 | awk '{print $2}' | tr -d '\r')
 
             if [ -n "$FILE_SIZE" ] && [ "$FILE_SIZE" -gt "$MAX_SIZE_BYTES" ] 2>/dev/null; then
               FILE_SIZE_MB=$(echo "scale=2; $FILE_SIZE / 1024 / 1024" | bc)
-              echo "❌ File too large: ${FILE_SIZE_MB}MB (max: ${MAX_SIZE_MB}MB)"
+              echo "❌ حجم زیاد: ${FILE_SIZE_MB}MB"
               create_size_error_file "$FILENAME" "$FILE_SIZE_MB" "$URL"
               return 1
             fi
 
             for ((attempt=1; attempt<=MAX_RETRIES; attempt++)); do
-              echo "Attempt $attempt of $MAX_RETRIES for $FILENAME"
+              echo "🔄 تلاش $attempt از $MAX_RETRIES"
 
               rm -f "downloads/$FILENAME"
 
@@ -191,10 +142,9 @@ jobs:
               if [ -f "downloads/$FILENAME" ] && [ -s "downloads/$FILENAME" ]; then
                 local DOWNLOADED_SIZE=$(stat -c%s "downloads/$FILENAME" 2>/dev/null || echo "0")
 
-                # Check size after download
                 if [ "$DOWNLOADED_SIZE" -gt "$MAX_SIZE_BYTES" ]; then
                   DOWNLOADED_SIZE_MB=$(echo "scale=2; $DOWNLOADED_SIZE / 1024 / 1024" | bc)
-                  echo "❌ Downloaded file too large: ${DOWNLOADED_SIZE_MB}MB (max: ${MAX_SIZE_MB}MB)"
+                  echo "❌ حجم زیاد: ${DOWNLOADED_SIZE_MB}MB"
                   rm -f "downloads/$FILENAME"
                   create_size_error_file "$FILENAME" "$DOWNLOADED_SIZE_MB" "$URL"
                   return 1
@@ -202,13 +152,12 @@ jobs:
 
                 if [ "$DOWNLOADED_SIZE" -gt 0 ]; then
                   SUCCESS=true
-                  echo "Download successful: $FILENAME (${DOWNLOADED_SIZE} bytes)"
+                  echo "✅ دانلود شد: $FILENAME"
                   break
                 fi
               fi
 
               rm -f "downloads/$FILENAME"
-              echo "Attempt $attempt failed. Waiting ${RETRY_DELAY}s before retry..."
               sleep $RETRY_DELAY
               RETRY_DELAY=$((RETRY_DELAY * 2))
             done
@@ -217,7 +166,7 @@ jobs:
               return 0
             fi
 
-            create_error_file "$FILENAME" "Download failed after $MAX_RETRIES attempts. Last error: $ERROR_LOG" "$URL"
+            create_error_file "$FILENAME" "$ERROR_LOG" "$URL"
             return 1
           }
 
@@ -225,13 +174,9 @@ jobs:
             FILENAME=$(basename "$URL" | sed 's/%20/ /g' | sed 's/%2F/-/g' | sed 's/[?#].*//')
             FILENAME=$(echo "$FILENAME" | sed 's/[<>:"|?*]/_/g')
             echo ""
-            echo "========================================"
-            echo "Downloading: $FILENAME"
-            echo "URL: $URL"
-            echo "========================================"
+            echo "📥 $FILENAME"
 
             if download_file "$URL" "$FILENAME"; then
-              # Create folder for successful download
               BASENAME_NO_EXT="${FILENAME%.*}"
               mkdir -p "downloads/${BASENAME_NO_EXT}"
               mv "downloads/$FILENAME" "downloads/${BASENAME_NO_EXT}/"
@@ -246,40 +191,26 @@ jobs:
               {
                 echo "# ${BASENAME_NO_EXT}"
                 echo ""
-                echo "---"
+                echo "| | |"
+                echo "|--|--|"
+                echo "| **فایل** | \`${FILENAME}\` |"
+                echo "| **حجم** | ${FILE_SIZE_MB} MB |"
+                echo "| **وضعیت** | ✅ کامل |"
                 echo ""
-                echo "## Download Information"
-                echo ""
-                echo "| Property | Value |"
-                echo "|----------|-------|"
-                echo "| **Original File** | \`${FILENAME}\` |"
-                echo "| **Size** | ${FILE_SIZE_MB} MB |"
-                echo "| **Status** | **Complete (100%)** |"
-                echo ""
-                echo "---"
-                echo ""
-                echo "## Download Link"
-                echo ""
-                echo "| File | Link |"
-                echo "|------|------|"
-                echo "| \`${FILENAME}\` | [Download](${RAW_LINK}) |"
+                echo "## 📥 دانلود"
+                echo "[دانلود فایل](${RAW_LINK})"
                 echo ""
                 echo "---"
-                echo ""
-                echo "*This tool created by [avasam.ir](https://avasam.ir) - Free Version*"
+                echo "*[avasam.ir](https://avasam.ir)*"
               } > "downloads/${BASENAME_NO_EXT}/README.md"
 
-              echo "✅ Download complete: $FILENAME"
+              echo "✅ $FILENAME"
             else
-              echo "❌ Failed to download: $FILENAME"
+              echo "❌ $FILENAME"
             fi
           done
 
-          echo ""
-          echo "===== Downloads folder contents ====="
-          find downloads -type f | head -50
-
-      - name: Update README.md with download links
+      - name: 📝 بروزرسانی README
         run: |
           REPO_OWNER="${{ github.repository_owner }}"
           REPO_NAME="${{ github.event.repository.name }}"
@@ -289,7 +220,7 @@ jobs:
           FOLDERS=$(find downloads -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null | sort)
 
           if [ -z "$FOLDERS" ]; then
-            echo "No folders found in downloads"
+            echo "📭 فایلی نیست"
             exit 0
           fi
 
@@ -298,7 +229,7 @@ jobs:
           }
 
           {
-            echo "# Downloaded list :"
+            echo "# 📦 فایل‌ها"
             echo ""
             echo "$FOLDERS" | while read -r FOLDER; do
               if [ -n "$FOLDER" ]; then
@@ -308,20 +239,14 @@ jobs:
             done
             echo ""
             echo "---"
-            echo ""
-            echo "*This tool created by [avasam.ir](https://avasam.ir) - Free Version (Max 10MB)*"
+            echo "*[avasam.ir](https://avasam.ir)*"
           } > "downloads/README.md"
 
-          echo "downloads/README.md created with list of downloaded files"
-
-          SECTION_TITLE="فایل های دانلود شده در گیتهاب شما :"
+          SECTION_TITLE="📦 فایل‌ها"
 
           if [ ! -f "README.md" ]; then
-            echo "# AVASAM Free Downloader" > README.md
-            echo "" >> README.md
+            echo "# AVASAM Free" > README.md
             echo "https://avasam.ir" >> README.md
-            echo "" >> README.md
-            echo "⚠️ نسخه رایگان - حداکثر حجم فایل: 10 مگابایت" >> README.md
             echo "" >> README.md
           fi
 
@@ -341,52 +266,43 @@ jobs:
               if [ -n "$FOLDER" ]; then
                 FOLDER_ENCODED=$(urlencode "${FOLDER}")
                 echo "${COUNTER}. [$FOLDER]($REPO_URL/$FOLDER_ENCODED)"
-                echo ""
                 COUNTER=$((COUNTER + 1))
               fi
             done
+            echo ""
             echo "---"
           } >> README.md
 
-          echo "README.md updated with download links"
-
-      - name: Commit & Push
+      - name: 🚀 ذخیره
         run: |
           BRANCH="${GITHUB_REF_NAME}"
 
-          echo "AVASAM Free (https://avasam.ir) - Pushing files..."
-          echo ""
-
-          git add -A downloads/
+          git add -f downloads/
           git add README.md
 
           if ! git diff --cached --quiet; then
-            git commit -m "[AVASAM Free] Downloaded files [skip ci]"
+            git commit -m "📥 [skip ci]"
 
             PUSH_RETRY=0
             while [ $PUSH_RETRY -lt 5 ]; do
               PUSH_RETRY=$((PUSH_RETRY + 1))
               if git push origin HEAD:"$BRANCH"; then
-                echo "✅ Push successful!"
+                echo "✅ ذخیره شد"
                 break
               else
-                echo "Push failed, retry $PUSH_RETRY/5..."
+                echo "🔄 تلاش $PUSH_RETRY/5..."
                 sleep 3
                 git fetch origin "$BRANCH"
                 git rebase origin/"$BRANCH"
-                git add -A downloads/
+                git add -f downloads/
                 git add README.md
                 if ! git diff --cached --quiet; then
-                  git commit -m "[AVASAM Free] Downloaded files [skip ci]"
+                  git commit -m "📥 [skip ci]"
                 fi
               fi
             done
           else
-            echo "No changes to push"
+            echo "📭 تغییری نیست"
           fi
 
-          echo ""
-          echo "=========================================="
-          echo "AVASAM Free Downloader Complete!"
-          echo "https://avasam.ir"
-          echo "=========================================="
+          echo "✅ تمام"
